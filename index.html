@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+
+{% block title %}Home | URL Shortener{% endblock %}
+
+{% block content %}
+
+<h2 class="mb-4 text-center">🔗 URL Shortener</h2>
+
+<!-- URL Input Form -->
+<div class="card shadow-sm mb-4">
+    <div class="card-body">
+        <form method="POST">
+            <div class="mb-3">
+                <label class="form-label">Enter your long URL</label>
+                <input type="url" 
+                       name="url" 
+                       class="form-control" 
+                       placeholder="https://example.com"
+                       required>
+            </div>
+
+            <button type="submit" class="btn btn-primary w-100">
+                Shorten URL
+            </button>
+        </form>
+    </div>
+</div>
+
+<!-- Shortened URLs Table -->
+<h4 class="mb-3">📊 Your Shortened URLs</h4>
+
+<table class="table table-bordered table-striped">
+    <thead class="table-dark">
+        <tr>
+            <th>Original URL</th>
+            <th>Short URL</th>
+            <th>Visits</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for url in all_urls %}
+        <tr>
+            <td>{{ url[0] }}</td>
+            <td>
+                <a href="/{{ url[1] }}" target="_blank">
+                    {{ request.host_url }}{{ url[1] }}
+                </a>
+            </td>
+            <td>{{ url[2] }}</td>
+            <td>
+                <form action="/delete/{{ url[1] }}" method="POST">
+                    <button class="btn btn-danger btn-sm">
+                        Delete
+                    </button>
+                </form>
+            </td>
+        </tr>
+        {% else %}
+        <tr>
+            <td colspan="4" class="text-center">
+                No URLs created yet.
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+{% endblock %}
