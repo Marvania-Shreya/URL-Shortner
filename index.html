@@ -1,49 +1,30 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>URL Shortener</title>
-</head>
-<body>
-
-<h2>URL Shortener</h2>
+{% extends "base.html" %}
+{% block content %}
 
 <form method="POST">
-    <input type="text" name="url" placeholder="Enter URL" required>
-    <button type="submit">Shorten</button>
+    <input name="url" placeholder="Enter URL" required>
+    <button>Shorten</button>
 </form>
 
-<br><br>
+<table border="1">
+<tr>
+<th>Original</th><th>Short</th><th>Clicks</th><th>Expiry</th><th>Delete</th>
+</tr>
 
-<table border="1" cellpadding="10">
-    <tr>
-        <th>Original URL</th>
-        <th>Short URL</th>
-        <th>Clicks</th>
-        <th>Analytics</th>
-        <th>Delete</th>
-    </tr>
-
-    {% for url in all_urls %}
-    <tr>
-        <td>{{ url[1] }}</td>
-        <td>
-            <a href="/{{ url[2] }}" target="_blank">
-                http://127.0.0.1:5000/{{ url[2] }}
-            </a>
-        </td>
-        <td>{{ url[3] }}</td>
-        <td>
-            <a href="/analytics/{{ url[2] }}">View</a>
-        </td>
-        <td>
-            <form method="POST" action="/delete/{{ url[2] }}">
-                <button type="submit">Delete</button>
-            </form>
-        </td>
-    </tr>
-    {% endfor %}
-
+{% for u in urls %}
+<tr>
+<td>{{u[1]}}</td>
+<td><a href="/{{u[2]}}">{{u[2]}}</a></td>
+<td>{{u[3]}}</td>
+<td>{{u[4]}}</td>
+<td>
+<form method="POST" action="/delete/{{u[2]}}">
+<button>Delete</button>
+</form>
+</td>
+</tr>
+{% endfor %}
 </table>
 
-</body>
-</html>
+<a href="/logout">Logout</a>
+{% endblock %}
