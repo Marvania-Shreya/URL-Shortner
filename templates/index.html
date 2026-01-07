@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block content %}
+
+<form method="POST">
+    <input name="url" placeholder="Enter URL" required>
+    <button>Shorten</button>
+</form>
+
+<table border="1">
+<tr>
+<th>Original</th><th>Short</th><th>Clicks</th><th>Expiry</th><th>Delete</th>
+</tr>
+
+{% for u in urls %}
+<tr>
+<td>{{u[1]}}</td>
+<td><a href="/{{u[2]}}">{{u[2]}}</a></td>
+<td>{{u[3]}}</td>
+<td>{{u[4]}}</td>
+<td>
+<form method="POST" action="/delete/{{u[2]}}">
+<button>Delete</button>
+</form>
+</td>
+</tr>
+{% endfor %}
+</table>
+
+<a href="/logout">Logout</a>
+{% endblock %}
