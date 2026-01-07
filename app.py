@@ -1,61 +1,90 @@
-from flask import Flask, request, redirect, render_template
-import random
-import string
+from flask import Flask, render_template, request, redirect, session, jsonify
+import random, string
+from datetime import datetime, timedelta
 
-from models import (
-    init_db,
-    insert_url,
-    get_url,
-    get_all_urls,
-    increase_click,
-    delete_url
-)
+from models import *
 
 app = Flask(__name__)
+app.secret_key = "secret123"
 
-# Create database table
 init_db()
 
-def generate_short_code(length=6):
-    return ''.join(
-        random.choices(string.ascii_letters + string.digits, k=length)
-    )
+def generate_code(length=6):
+    return ''.join(random.choices(string.ascii_letters + string.digits, k=length))
 
-@app.route("/", methods=["GET", "POST"])
-def index():
+# ---------------- AUTH ----------------
+@app.route("/register", methods=["GET","POST"])
+def register():
     if request.method == "POST":
-        original_url = request.form["url"]
-        short_code = generate_short_code()
-        insert_url(original_url, short_code)
+        create_user(
+            request.form["username"],
+            request.form["password"]
+        )
+        return redirect("/login")
+    return render_template("register.html")
+
+@app.route("/login", methods=["GET","POST"])
+def login():
+    if request.method == "POST":
+        user = get_user(request.form["username"])
+        if user and user[2] == request.form["password"]:
+            session["user_id"] = user[0]
+            return redirect("/")
+    return render_template("login.html")
+
+@app.route("/logout")
+def logout():
+    session.clear()
+    return redirect("/login")
+
+# ---------------- HOME ----------------
+@app.route("/", methods=["GET","POST"])
+def index():
+    if "user_id" not in session:
+        return redirect("/login")
+
+    if request.method == "POST":
+        expiry = datetime.now() + timedelta(days=7)
+        insert_url(
+            request.form["url"],
+            generate_code(),
+            expiry.strftime("%Y-%m-%d %H:%M:%S"),
+            session["user_id"]
+        )
         return redirect("/")
 
-    all_urls = get_all_urls()
-    return render_template("index.html", all_urls=all_urls)
+    urls = get_user_urls(session["user_id"])
+    return render_template("index.html", urls=urls)
 
-@app.route("/<short_code>")
-def redirect_url(short_code):
-    url = get_url(short_code)
+# ---------------- REDIRECT ----------------
+@app.route("/<code>")
+def redirect_url(code):
+    url = get_url(code)
+    if not url:
+        return render_template("404.html")
 
-    if url:
-        increase_click(short_code)
-        return redirect(url[1])
-    else:
-        return render_template("404.html"), 404
+    if datetime.now() > datetime.strptime(url[4], "%Y-%m-%d %H:%M:%S"):
+        return render_template("404.html")
 
-@app.route("/delete/<short_code>", methods=["POST"])
-def delete(short_code):
-    delete_url(short_code)
+    increase_click(code)
+    return redirect(url[1])
+
+# ---------------- ANALYTICS ----------------
+@app.route("/analytics/<code>")
+def analytics(code):
+    url = get_url(code)
+    return render_template("analytics.html", url=url)
+
+# ---------------- DELETE ----------------
+@app.route("/delete/<code>", methods=["POST"])
+def delete(code):
+    delete_url(code)
     return redirect("/")
 
-@app.route("/analytics/<short_code>")
-def analytics(short_code):
-    url = get_url(short_code)
-    if url:
-        return render_template("analytics.html", url=url)
-    else:
-        return render_template("404.html"), 404
+# ---------------- REST API ----------------
+@app.route("/api/urls")
+def api_urls():
+    return jsonify(get_user_urls(session["user_id"]))
 
 if __name__ == "__main__":
     app.run(debug=True)
-
-
