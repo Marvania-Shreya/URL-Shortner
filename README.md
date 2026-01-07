@@ -1,1 +1,13 @@
-“Developed a Flask-based URL shortener using Python and SQLite, focusing on clean architecture, database design, and responsive UI.”
+Flask URL Shortener
+
+Features:
+- User authentication
+- URL shortening
+- Click analytics
+- Expiry logic
+- REST API
+- SQLite database
+
+Tech:
+Python, Flask, SQLite, HTML
+
