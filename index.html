@@ -1,69 +1,49 @@
-{% extends "base.html" %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>URL Shortener</title>
+</head>
+<body>
 
-{% block title %}Home | URL Shortener{% endblock %}
+<h2>URL Shortener</h2>
 
-{% block content %}
+<form method="POST">
+    <input type="text" name="url" placeholder="Enter URL" required>
+    <button type="submit">Shorten</button>
+</form>
 
-<h2 class="mb-4 text-center">🔗 URL Shortener</h2>
+<br><br>
 
-<!-- URL Input Form -->
-<div class="card shadow-sm mb-4">
-    <div class="card-body">
-        <form method="POST">
-            <div class="mb-3">
-                <label class="form-label">Enter your long URL</label>
-                <input type="url" 
-                       name="url" 
-                       class="form-control" 
-                       placeholder="https://example.com"
-                       required>
-            </div>
+<table border="1" cellpadding="10">
+    <tr>
+        <th>Original URL</th>
+        <th>Short URL</th>
+        <th>Clicks</th>
+        <th>Analytics</th>
+        <th>Delete</th>
+    </tr>
 
-            <button type="submit" class="btn btn-primary w-100">
-                Shorten URL
-            </button>
-        </form>
-    </div>
-</div>
+    {% for url in all_urls %}
+    <tr>
+        <td>{{ url[1] }}</td>
+        <td>
+            <a href="/{{ url[2] }}" target="_blank">
+                http://127.0.0.1:5000/{{ url[2] }}
+            </a>
+        </td>
+        <td>{{ url[3] }}</td>
+        <td>
+            <a href="/analytics/{{ url[2] }}">View</a>
+        </td>
+        <td>
+            <form method="POST" action="/delete/{{ url[2] }}">
+                <button type="submit">Delete</button>
+            </form>
+        </td>
+    </tr>
+    {% endfor %}
 
-<!-- Shortened URLs Table -->
-<h4 class="mb-3">📊 Your Shortened URLs</h4>
-
-<table class="table table-bordered table-striped">
-    <thead class="table-dark">
-        <tr>
-            <th>Original URL</th>
-            <th>Short URL</th>
-            <th>Visits</th>
-            <th>Action</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for url in all_urls %}
-        <tr>
-            <td>{{ url[0] }}</td>
-            <td>
-                <a href="/{{ url[1] }}" target="_blank">
-                    {{ request.host_url }}{{ url[1] }}
-                </a>
-            </td>
-            <td>{{ url[2] }}</td>
-            <td>
-                <form action="/delete/{{ url[1] }}" method="POST">
-                    <button class="btn btn-danger btn-sm">
-                        Delete
-                    </button>
-                </form>
-            </td>
-        </tr>
-        {% else %}
-        <tr>
-            <td colspan="4" class="text-center">
-                No URLs created yet.
-            </td>
-        </tr>
-        {% endfor %}
-    </tbody>
 </table>
 
-{% endblock %}
+</body>
+</html>
