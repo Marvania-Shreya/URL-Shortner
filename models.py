@@ -1,97 +1,109 @@
 import sqlite3
 
-DB_NAME = "database.db"
+DB = "database.db"
 
-def connect_db():
-    return sqlite3.connect(DB_NAME)
+
+def connect():
+    return sqlite3.connect(DB)
+
 
 def init_db():
-    conn = connect_db()
-    cursor = conn.cursor()
+    con = connect()
+    c = con.cursor()
 
-    # USERS TABLE
-    cursor.execute("""
-        CREATE TABLE IF NOT EXISTS users (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            username TEXT UNIQUE,
-            password TEXT
-        )
+    c.execute("""
+    CREATE TABLE IF NOT EXISTS users (
+        username TEXT PRIMARY KEY,
+        password TEXT
+    )
     """)
 
-    # URLS TABLE
-    cursor.execute("""
-        CREATE TABLE IF NOT EXISTS urls (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            original_url TEXT,
-            short_code TEXT UNIQUE,
-            clicks INTEGER DEFAULT 0,
-            expiry_date TEXT,
-            user_id INTEGER
-        )
+    c.execute("""
+    CREATE TABLE IF NOT EXISTS urls (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        username TEXT,
+        long_url TEXT,
+        short_id TEXT UNIQUE,
+        clicks INTEGER DEFAULT 0,
+        expiry TEXT
+    )
     """)
 
-    conn.commit()
-    conn.close()
+    con.commit()
+    con.close()
 
-# ---------- USER FUNCTIONS ----------
+
+# User system
 def create_user(username, password):
-    conn = connect_db()
-    cursor = conn.cursor()
-    cursor.execute(
-        "INSERT INTO users (username, password) VALUES (?, ?)",
-        (username, password)
+    try:
+        con = connect()
+        c = con.cursor()
+        c.execute("INSERT INTO users VALUES (?,?)", (username, password))
+        con.commit()
+        return True
+    except:
+        return False
+
+
+def check_user(username, password):
+    con = connect()
+    c = con.cursor()
+    c.execute("SELECT * FROM users WHERE username=? AND password=?", (username, password))
+    return c.fetchone()
+
+
+# URL functions
+def insert_url(username, long_url, short, expiry):
+    con = connect()
+    c = con.cursor()
+    c.execute(
+        "INSERT INTO urls(username, long_url, short_id, expiry) VALUES (?,?,?,?)",
+        (username, long_url, short, expiry)
     )
-    conn.commit()
-    conn.close()
+    con.commit()
 
-def get_user(username):
-    conn = connect_db()
-    cursor = conn.cursor()
-    cursor.execute("SELECT * FROM users WHERE username=?", (username,))
-    user = cursor.fetchone()
-    conn.close()
-    return user
 
-# ---------- URL FUNCTIONS ----------
-def insert_url(original_url, short_code, expiry_date, user_id):
-    conn = connect_db()
-    cursor = conn.cursor()
-    cursor.execute(
-        "INSERT INTO urls (original_url, short_code, expiry_date, user_id) VALUES (?, ?, ?, ?)",
-        (original_url, short_code, expiry_date, user_id)
-    )
-    conn.commit()
-    conn.close()
+def get_user_urls(username):
+    con = connect()
+    c = con.cursor()
+    c.execute("SELECT long_url, short_id, clicks, expiry FROM urls WHERE username=?", (username,))
+    return c.fetchall()
 
-def get_url(short_code):
-    conn = connect_db()
-    cursor = conn.cursor()
-    cursor.execute("SELECT * FROM urls WHERE short_code=?", (short_code,))
-    data = cursor.fetchone()
-    conn.close()
-    return data
 
-def get_user_urls(user_id):
-    conn = connect_db()
-    cursor = conn.cursor()
-    cursor.execute("SELECT * FROM urls WHERE user_id=?", (user_id,))
-    data = cursor.fetchall()
-    conn.close()
-    return data
+def get_url(short):
+    con = connect()
+    c = con.cursor()
+    c.execute("SELECT long_url, expiry FROM urls WHERE short_id=?", (short,))
+    row = c.fetchone()
+    if row:
+        return {"long_url": row[0], "expiry": row[1]}
+    return None
 
-def increase_click(short_code):
-    conn = connect_db()
-    cursor = conn.cursor()
-    cursor.execute(
-        "UPDATE urls SET clicks = clicks + 1 WHERE short_code=?",
-        (short_code,)
-    )
-    conn.commit()
-    conn.close()
 
-def delete_url(short_code):
-    conn = connect_db()
-    cursor = conn.cursor()
-    cursor.execute("DELETE FROM urls WHERE short_code=?", (short_code,))
-    conn.commit()
-    conn.close()
+def increment_click(short):
+    con = connect()
+    c = con.cursor()
+    c.execute("UPDATE urls SET clicks = clicks + 1 WHERE short_id=?", (short,))
+    con.commit()
+
+
+def delete_url(short):
+    con = connect()
+    c = con.cursor()
+    c.execute("DELETE FROM urls WHERE short_id=?", (short,))
+    con.commit()
+
+
+def get_analytics(short):
+    con = connect()
+    c = con.cursor()
+    c.execute("SELECT long_url, short_id, clicks, expiry FROM urls WHERE short_id=?", (short,))
+    row = c.fetchone()
+    if row:
+        return {
+            "long_url": row[0],
+            "short": row[1],
+            "clicks": row[2],
+            "expiry": row[3]
+        }
+    return None
