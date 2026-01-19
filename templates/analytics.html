@@ -1,11 +1,13 @@
 {% extends "base.html" %}
 {% block content %}
 
-<h3>Analytics</h3>
-<p>Original URL: {{url[1]}}</p>
-<p>Short Code: {{url[2]}}</p>
-<p>Clicks: {{url[3]}}</p>
-<p>Expiry: {{url[4]}}</p>
+<h2>Analytics</h2>
+
+<p><b>Original URL:</b> {{ url.long_url }}</p>
+<p><b>Short:</b> {{ url.short }}</p>
+<p><b>Total Clicks:</b> {{ url.clicks }}</p>
+<p><b>Expiry Date:</b> {{ url.expiry }}</p>
 
 <a href="/">Back</a>
+
 {% endblock %}
