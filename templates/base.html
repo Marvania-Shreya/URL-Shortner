@@ -2,13 +2,24 @@
 <html>
 <head>
     <title>URL Shortener</title>
+    <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
 
-<h2>URL Shortener</h2>
-<hr>
+<div class="container">
 
-{% block content %}{% endblock %}
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    {% for cat, msg in messages %}
+      <p style="padding:10px; background:#eee; border-left:4px solid green;">{{ msg }}</p>
+    {% endfor %}
+  {% endif %}
+{% endwith %}
+
+{% block content %}
+{% endblock %}
+
+</div>
 
 </body>
 </html>
