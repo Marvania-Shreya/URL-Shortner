@@ -1,38 +1,57 @@
 {% extends "base.html" %}
 {% block content %}
 
-<h2>Welcome, {{ username }}</h2>
+<h2>Welcome {{ username }}</h2>
+
+<div style="display:flex; justify-content:space-between;">
+    <h3>Dashboard</h3>
+    <a href="/logout">Logout</a>
+</div>
+
+<hr>
+
+<h3>Create Short URL</h3>
 
 <form method="POST" action="/shorten">
-    <input type="text" name="long_url" placeholder="Enter URL" required>
+    <input type="text" name="long_url" placeholder="Enter long URL" required>
     <input type="date" name="expiry">
-    <button>Create Short URL</button>
+    <button>Create Short Link</button>
 </form>
 
-<table class="table">
-    <tr>
-        <th>Original</th>
-        <th>Short</th>
+<hr>
+
+<h3>Your URLs</h3>
+
+<table style="width:100%; border-collapse:collapse;">
+    <tr style="background:#f2f2f2;">
+        <th>Long URL</th>
+        <th>Short URL</th>
         <th>Clicks</th>
         <th>Expiry</th>
         <th>Actions</th>
     </tr>
 
-    {% for row in urls %}
+    {% for u in urls %}
     <tr>
-        <td>{{ row[0] }}</td>
-        <td><a href="/{{ row[1] }}" target="_blank">{{ row[1] }}</a></td>
-        <td>{{ row[2] }}</td>
-        <td>{{ row[3] }}</td>
+        <td>{{ u[0] }}</td>
+
         <td>
-            <a href="/analytics/{{ row[1] }}">Analytics</a> |
-            <a href="/delete/{{ row[1] }}">Delete</a>
+            <a href="/{{ u[1] }}">
+                http://127.0.0.1:5000/{{ u[1] }}
+            </a>
+        </td>
+
+        <td>{{ u[2] }}</td>
+        <td>{{ u[3] }}</td>
+
+        <td>
+            <a href="/analytics/{{ u[1] }}">Analytics</a> |
+            <a href="/delete/{{ u[1] }}">Delete</a>
         </td>
     </tr>
     {% endfor %}
+
 </table>
 
-<br>
-<a href="/logout">Logout</a>
-
 {% endblock %}
+
