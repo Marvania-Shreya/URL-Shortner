@@ -1,13 +1,19 @@
-Flask URL Shortener:
+# 🔗 Flask URL Shortener
 
-Shorten URLs, track clicks, and manage expiry easily with a simple Flask app.
+Shorten URLs, track clicks, manage expiry dates, and access analytics with a simple and secure Flask web application.
 
-Features:
-- User authentication (Login/Register/Logout)
-- URL shortening
-- Click analytics
-- Expiry logic (URLs expire automatically)
-- REST API endpoints
-- SQLite database
+## ✨ Features
+- User Authentication (Register/Login/Logout)
+- URL Shortening
+- Click Analytics
+- Automatic URL Expiry
+- REST API
+- Secure Password Hashing
+- SQLite Database
 
-Tech: Python, Flask, SQLite, HTML, CSS
+## 🛠️ Built With
+- Python
+- Flask
+- SQLite
+- HTML
+- CSS
